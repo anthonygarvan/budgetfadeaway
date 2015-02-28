@@ -60,14 +60,15 @@ module.exports = function (graphics) {
   function addDragNDrop() {
     var stage = graphics.stage;
     stage.setInteractive(true);
-    var text = new PIXI.Text("", {font:"50px Helvetica", fill:"white"});
-    text.position.x = 50;
-    text.position.y = 50;
-    stage.addChild(text);
     
     var highlighter = new PIXI.Graphics();
     stage.addChild(highlighter);
     
+    var text = new PIXI.Text("", {font:"20px Helvetica", fill:"yellow", stroke: "black", strokeThickness: 2});
+    text.position.x = 50;
+    text.position.y = 50;
+    stage.addChild(text);
+
     var isDragging = false,
         prevX, prevY;
 
@@ -91,8 +92,13 @@ module.exports = function (graphics) {
         highlighter.position.x = graphGraphics.position.x;
         highlighter.position.y = graphGraphics.position.y;
         highlighter.clear();
-        highlighter.beginFill(0xFFFFFF);
-        highlighter.drawCircle(highlightPos.x, highlightPos.y, 2);
+        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        if(dotSizes.x > 0) {
+          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          highlighter.beginFill(0xFFFF00);
+          highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
+          highlighter.endFill();
+        }
       } else {
         highlighter.visible = false;
       }
@@ -11893,10 +11899,14 @@ function drawGraph(graphics) {
     graphics.clear();
       
     for(var word in wg.wordGalaxy) {
-        positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
-        graphics.beginFill(0xFFFFFF);
-        graphics.drawRect(positions.x, positions.y, 1, 1);
-        graphics.endFill();
+        //var dotSize = 50*wg.wordGalaxy[word].dotSize + .1;
+        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        if(dotSizes.x > 0) {
+          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          graphics.beginFill(0xFFFFFF);
+          graphics.drawRect(positions.x - dotSizes.x/2, positions.y - dotSizes.y/2, dotSizes.x, dotSizes.y);
+          graphics.endFill();
+        }
     }
 }
 
@@ -11910,7 +11920,7 @@ module.exports = function () {
        success: function(result) {
                     wordGalaxy = result;
                     for(var word in wordGalaxy) {
-                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=6);
+                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=4);
                       if(hash in geoHashDictionary) {
                         geoHashDictionary[hash].push(word);
                       } else {
@@ -11922,7 +11932,7 @@ module.exports = function () {
   });
   
   function graphicsToWordGalaxyCoordinates(x,y) {
-    var scale = window.innerHeight - 50;
+    var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = (x - width/2)/scale + 0.5;
     y_out = y/scale;
@@ -11930,16 +11940,24 @@ module.exports = function () {
   }
   
   function wordGalaxyToGraphicsCoordinates(x,y) {
-    var scale = window.innerHeight - 50;
+    var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = scale*(x-0.5) + width/2;
     y_out = scale*y;
     return {x: x_out, y: y_out};
   }
   
+  function getScaledDotSizes(dotSize) {
+    var scale = window.innerHeight;
+    //var width = window.innerWidth;
+    x_out = scale*dotSize;
+    y_out = scale*dotSize;
+    return {x: x_out, y: y_out};
+  }
+  
   function getWord(x, y) {
     wordGalaxyPositions = graphicsToWordGalaxyCoordinates(x, y);
-    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=6);
+    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=4);
     if(hash in geoHashDictionary) {
       var closestWord = "";
       var closestDistance = 1000;
@@ -11974,7 +11992,8 @@ module.exports = function () {
     wordGalaxyToGraphicsCoordinates: wordGalaxyToGraphicsCoordinates,
     getWord: getWord,
     getTaggedWords: function() {return taggedWords;},
-    addTaggedWord: addTaggedWord
+    addTaggedWord: addTaggedWord,
+    getScaledDotSizes: getScaledDotSizes
   };
 }();
 },{"jquery":4,"ngeohash":5}]},{},[2])

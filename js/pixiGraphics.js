@@ -37,9 +37,13 @@ function drawGraph(graphics) {
     graphics.clear();
       
     for(var word in wg.wordGalaxy) {
-        positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
-        graphics.beginFill(0xFFFFFF);
-        graphics.drawRect(positions.x, positions.y, 1, 1);
-        graphics.endFill();
+        //var dotSize = 50*wg.wordGalaxy[word].dotSize + .1;
+        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        if(dotSizes.x > 0) {
+          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          graphics.beginFill(0xFFFFFF);
+          graphics.drawRect(positions.x - dotSizes.x/2, positions.y - dotSizes.y/2, dotSizes.x, dotSizes.y);
+          graphics.endFill();
+        }
     }
 }

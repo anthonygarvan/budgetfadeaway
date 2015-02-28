@@ -7,7 +7,7 @@ module.exports = function () {
        success: function(result) {
                     wordGalaxy = result;
                     for(var word in wordGalaxy) {
-                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=6);
+                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=4);
                       if(hash in geoHashDictionary) {
                         geoHashDictionary[hash].push(word);
                       } else {
@@ -19,7 +19,7 @@ module.exports = function () {
   });
   
   function graphicsToWordGalaxyCoordinates(x,y) {
-    var scale = window.innerHeight - 50;
+    var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = (x - width/2)/scale + 0.5;
     y_out = y/scale;
@@ -27,16 +27,24 @@ module.exports = function () {
   }
   
   function wordGalaxyToGraphicsCoordinates(x,y) {
-    var scale = window.innerHeight - 50;
+    var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = scale*(x-0.5) + width/2;
     y_out = scale*y;
     return {x: x_out, y: y_out};
   }
   
+  function getScaledDotSizes(dotSize) {
+    var scale = window.innerHeight;
+    //var width = window.innerWidth;
+    x_out = scale*dotSize;
+    y_out = scale*dotSize;
+    return {x: x_out, y: y_out};
+  }
+  
   function getWord(x, y) {
     wordGalaxyPositions = graphicsToWordGalaxyCoordinates(x, y);
-    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=6);
+    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=4);
     if(hash in geoHashDictionary) {
       var closestWord = "";
       var closestDistance = 1000;
@@ -71,6 +79,7 @@ module.exports = function () {
     wordGalaxyToGraphicsCoordinates: wordGalaxyToGraphicsCoordinates,
     getWord: getWord,
     getTaggedWords: function() {return taggedWords;},
-    addTaggedWord: addTaggedWord
+    addTaggedWord: addTaggedWord,
+    getScaledDotSizes: getScaledDotSizes
   };
 }();
