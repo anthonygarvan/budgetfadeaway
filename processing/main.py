@@ -9,6 +9,7 @@ import numpy as np
 import csv
 from sklearn.metrics.pairwise import pairwise_distances
 import math
+import os
 
 start_time = time()
 n_samples = 20000
@@ -42,14 +43,6 @@ for line in csv_file:
   isHeader = False
   
 dot_sizes = Normalizer().fit_transform(np.array([dot_sizes]))[0,:]*0.45
-"""
-X_raw = pairwise_distances(StandardScaler().fit_transform(np.array(X_list[:n_samples])), metric='correlation')
-
-print "transforming data to two dimensions..."
-X_2d = bh_sne(X_raw)
-X_scaled = MinMaxScaler().fit_transform(X_2d)
-#X_scaled = X_2d
-"""
 
 wordmap = {}
 print "formatting data..."
@@ -63,6 +56,8 @@ for i in range(0, len(word_list)):
 f = open('wordGalaxy_raw.json', 'w')
 json.dump(wordmap, f)
 f.close()
+
+os.system("node packRectangles.js")
 
 end_time = time()
 duration = float(end_time - start_time) / 60

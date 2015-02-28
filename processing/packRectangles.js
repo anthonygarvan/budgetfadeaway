@@ -24,21 +24,6 @@ function compare(a,b) {
 blocks.sort(compare); // sort inputs for best results
 packer.fit(blocks);
 
-/*
-var lastX = blocks[0].w;
-var lastY = 0;
-var biggestH = blocks[0].h;
-lastY = 1;
-for(var i = 0; i < blocks.length; i++) {
-  blocks[i].fit = {x : lastX, y : lastY};
-  lastX = lastX + blocks[i].dotSize + .02;
-  if(lastX > 1) {
-    lastY = lastY - biggestH;
-    lastX = blocks[i].w / 2;
-    biggestH = blocks[i].h;
-  }
-}
-*/
 wg_new = {};
 for(var i = 0 ; i < blocks.length ; i++) {
   if(blocks[i].fit) {
