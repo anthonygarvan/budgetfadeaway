@@ -3,11 +3,11 @@ module.exports = function () {
   var $ = require('jquery');
   geoHashDictionary = {};
   $.ajax({
-       url:    window.location.href + '/../processing/wordGalaxy.json',
+       url:    window.location.href + '/../processing/budgetFadeaway.json',
        success: function(result) {
-                    wordGalaxy = result;
-                    for(var word in wordGalaxy) {
-                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=4);
+                    budgetFadeaway = result;
+                    for(var word in budgetFadeaway) {
+                      hash = geohash.encode(budgetFadeaway[word].x, budgetFadeaway[word].y, precision=4);
                       if(hash in geoHashDictionary) {
                         geoHashDictionary[hash].push(word);
                       } else {
@@ -18,7 +18,7 @@ module.exports = function () {
        async:   false
   });
   
-  function graphicsToWordGalaxyCoordinates(x,y) {
+  function graphicsToBudgetFadeawayCoordinates(x,y) {
     var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = (x - width/2)/scale + 0.5;
@@ -26,7 +26,7 @@ module.exports = function () {
     return {x: x_out, y: y_out};  
   }
   
-  function wordGalaxyToGraphicsCoordinates(x,y) {
+  function budgetFadeawayToGraphicsCoordinates(x,y) {
     var scale = window.innerHeight;
     var width = window.innerWidth;
     x_out = scale*(x-0.5) + width/2;
@@ -43,14 +43,14 @@ module.exports = function () {
   }
   
   function getWord(x, y) {
-    wordGalaxyPositions = graphicsToWordGalaxyCoordinates(x, y);
-    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=4);
+    budgetFadeawayPositions = graphicsToBudgetFadeawayCoordinates(x, y);
+    var hash = geohash.encode(budgetFadeawayPositions.x, budgetFadeawayPositions.y, precision=4);
     if(hash in geoHashDictionary) {
       var closestWord = "";
       var closestDistance = 1000;
       geoHashDictionary[hash].forEach(function(word, i, arr) {
-        x2 = Math.pow((wordGalaxyPositions.x - wordGalaxy[word].x), 2);
-        y2 = Math.pow((wordGalaxyPositions.y - wordGalaxy[word].y), 2);
+        x2 = Math.pow((budgetFadeawayPositions.x - budgetFadeaway[word].x), 2);
+        y2 = Math.pow((budgetFadeawayPositions.y - budgetFadeaway[word].y), 2);
         d = x2 + y2;
         
         if(d < closestDistance) {
@@ -73,10 +73,10 @@ module.exports = function () {
   }
   
   return {
-    wordGalaxy: wordGalaxy,
+    budgetFadeaway: budgetFadeaway,
     geoHashDictionary: geoHashDictionary,
-    graphicsToWordGalaxyCoordinates: graphicsToWordGalaxyCoordinates,
-    wordGalaxyToGraphicsCoordinates: wordGalaxyToGraphicsCoordinates,
+    graphicsToBudgetFadeawayCoordinates: graphicsToBudgetFadeawayCoordinates,
+    budgetFadeawayToGraphicsCoordinates: budgetFadeawayToGraphicsCoordinates,
     getWord: getWord,
     getTaggedWords: function() {return taggedWords;},
     addTaggedWord: addTaggedWord,

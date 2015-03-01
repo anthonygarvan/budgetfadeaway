@@ -34,4 +34,4 @@ for(var i = 0 ; i < blocks.length ; i++) {
 
 wg_json = JSON.stringify(wg_new);
 
-fs.writeFile('wordGalaxy.json', wg_json);
+fs.writeFile('budgetFadeaway.json', wg_json);

@@ -1,6 +1,6 @@
 module.exports = function (graphics) {
   var addWheelListener = require('./lib/addWheelListener');
-  var wg = require('./wordgalaxy');
+  var bf = require('./budgetFadeaway');
   var geohash = require('ngeohash');
   var graphGraphics = graphics.graphGraphics;
   var $ = require('jquery');
@@ -44,7 +44,7 @@ module.exports = function (graphics) {
     var searchTerm = $("#search-term").val();
     $("#search-term").val("");
     var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill:"yellow"});
-    wordPos = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[searchTerm].x, wg.wordGalaxy[searchTerm].y);
+    wordPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[searchTerm].x, bf.budgetFadeaway[searchTerm].y);
     taggedText.position.x = wordPos.x + 5;
     taggedText.position.y = wordPos.y - 30;
     taggedText.setText(searchTerm);
@@ -80,20 +80,20 @@ module.exports = function (graphics) {
     stage.mousemove = function (moveData) {
       var pos = moveData.global;
       var graphPos = getGraphCoordinates(pos.x, pos.y);
-      var word = wg.getWord(graphPos.x, graphPos.y);
+      var word = bf.getWord(graphPos.x, graphPos.y);
       text.setText(word);
       
       if(word) {
-        highlightPos = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+        highlightPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
         highlighter.visible = true;
         highlighter.scale.x = graphGraphics.scale.x;
         highlighter.scale.y = graphGraphics.scale.y;
         highlighter.position.x = graphGraphics.position.x;
         highlighter.position.y = graphGraphics.position.y;
         highlighter.clear();
-        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
-          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
           highlighter.beginFill(0xFFFF00);
           highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
           highlighter.endFill();

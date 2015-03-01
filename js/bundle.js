@@ -1,7 +1,93 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.ngraph=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = function () {
+  var geohash = require('ngeohash');
+  var $ = require('jquery');
+  geoHashDictionary = {};
+  $.ajax({
+       url:    window.location.href + '/../processing/budgetFadeaway.json',
+       success: function(result) {
+                    budgetFadeaway = result;
+                    for(var word in budgetFadeaway) {
+                      hash = geohash.encode(budgetFadeaway[word].x, budgetFadeaway[word].y, precision=4);
+                      if(hash in geoHashDictionary) {
+                        geoHashDictionary[hash].push(word);
+                      } else {
+                        geoHashDictionary[hash] = [word];  
+                      }
+                    }
+                },
+       async:   false
+  });
+  
+  function graphicsToBudgetFadeawayCoordinates(x,y) {
+    var scale = window.innerHeight;
+    var width = window.innerWidth;
+    x_out = (x - width/2)/scale + 0.5;
+    y_out = y/scale;
+    return {x: x_out, y: y_out};  
+  }
+  
+  function budgetFadeawayToGraphicsCoordinates(x,y) {
+    var scale = window.innerHeight;
+    var width = window.innerWidth;
+    x_out = scale*(x-0.5) + width/2;
+    y_out = scale*y;
+    return {x: x_out, y: y_out};
+  }
+  
+  function getScaledDotSizes(dotSize) {
+    var scale = window.innerHeight;
+    //var width = window.innerWidth;
+    x_out = scale*dotSize;
+    y_out = scale*dotSize;
+    return {x: x_out, y: y_out};
+  }
+  
+  function getWord(x, y) {
+    budgetFadeawayPositions = graphicsToBudgetFadeawayCoordinates(x, y);
+    var hash = geohash.encode(budgetFadeawayPositions.x, budgetFadeawayPositions.y, precision=4);
+    if(hash in geoHashDictionary) {
+      var closestWord = "";
+      var closestDistance = 1000;
+      geoHashDictionary[hash].forEach(function(word, i, arr) {
+        x2 = Math.pow((budgetFadeawayPositions.x - budgetFadeaway[word].x), 2);
+        y2 = Math.pow((budgetFadeawayPositions.y - budgetFadeaway[word].y), 2);
+        d = x2 + y2;
+        
+        if(d < closestDistance) {
+          closestDistance = d;
+          closestWord = word;
+        }
+      })
+      return closestWord;
+    }
+    return "";
+  }
+  
+  var taggedWords = {};
+      taggedWords["test1"] = {"x":0.5, "y":0.5};
+      taggedWords["test2"] = {"x":0.3, "y":0.3};
+      
+  
+  function addTaggedWord(word) {
+    taggedWords[word] = {"x" : Math.random(), "y": Math.random()};
+  }
+  
+  return {
+    budgetFadeaway: budgetFadeaway,
+    geoHashDictionary: geoHashDictionary,
+    graphicsToBudgetFadeawayCoordinates: graphicsToBudgetFadeawayCoordinates,
+    budgetFadeawayToGraphicsCoordinates: budgetFadeawayToGraphicsCoordinates,
+    getWord: getWord,
+    getTaggedWords: function() {return taggedWords;},
+    addTaggedWord: addTaggedWord,
+    getScaledDotSizes: getScaledDotSizes
+  };
+}();
+},{"jquery":5,"ngeohash":6}],2:[function(require,module,exports){
 module.exports = function (graphics) {
   var addWheelListener = require('./lib/addWheelListener');
-  var wg = require('./wordgalaxy');
+  var bf = require('./budgetFadeaway');
   var geohash = require('ngeohash');
   var graphGraphics = graphics.graphGraphics;
   var $ = require('jquery');
@@ -45,7 +131,7 @@ module.exports = function (graphics) {
     var searchTerm = $("#search-term").val();
     $("#search-term").val("");
     var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill:"yellow"});
-    wordPos = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[searchTerm].x, wg.wordGalaxy[searchTerm].y);
+    wordPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[searchTerm].x, bf.budgetFadeaway[searchTerm].y);
     taggedText.position.x = wordPos.x + 5;
     taggedText.position.y = wordPos.y - 30;
     taggedText.setText(searchTerm);
@@ -81,20 +167,20 @@ module.exports = function (graphics) {
     stage.mousemove = function (moveData) {
       var pos = moveData.global;
       var graphPos = getGraphCoordinates(pos.x, pos.y);
-      var word = wg.getWord(graphPos.x, graphPos.y);
+      var word = bf.getWord(graphPos.x, graphPos.y);
       text.setText(word);
       
       if(word) {
-        highlightPos = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+        highlightPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
         highlighter.visible = true;
         highlighter.scale.x = graphGraphics.scale.x;
         highlighter.scale.y = graphGraphics.scale.y;
         highlighter.position.x = graphGraphics.position.x;
         highlighter.position.y = graphGraphics.position.y;
         highlighter.clear();
-        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
-          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
           highlighter.beginFill(0xFFFF00);
           highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
           highlighter.endFill();
@@ -120,7 +206,7 @@ module.exports = function (graphics) {
   }
 }
 
-},{"./lib/addWheelListener":3,"./wordgalaxy":25,"jquery":4,"ngeohash":5}],2:[function(require,module,exports){
+},{"./budgetFadeaway":1,"./lib/addWheelListener":4,"jquery":5,"ngeohash":6}],3:[function(require,module,exports){
 module.exports.main = function () {
  
   var graph = require('ngraph.generators').grid(40, 40),
@@ -155,7 +241,7 @@ function createLayout(graph) {
         }));
 }
 
-},{"./globalInput":1,"./pixiGraphics":24,"ngraph.forcelayout":6,"ngraph.generators":9,"ngraph.physics.simulator":12}],3:[function(require,module,exports){
+},{"./globalInput":2,"./pixiGraphics":25,"ngraph.forcelayout":7,"ngraph.generators":10,"ngraph.physics.simulator":13}],4:[function(require,module,exports){
 /**
  * This module unifies handling of mouse whee event accross different browsers
  *
@@ -223,7 +309,7 @@ function _addWheelListener( elem, eventName, callback, useCapture ) {
     }, useCapture || false );
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.3
  * http://jquery.com/
@@ -9430,7 +9516,7 @@ return jQuery;
 
 }));
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * Copyright (c) 2011, Sun Ning.
  *
@@ -9941,7 +10027,7 @@ var geohash = {
 
 module.exports = geohash;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = createLayout;
 
 // Maximum movement of the system at which system should be considered as stable
@@ -10256,7 +10342,7 @@ function createLayout(graph, physicsSimulator) {
   }
 }
 
-},{"ngraph.physics.primitives":7,"ngraph.physics.simulator":12,"ngraph.random":8}],7:[function(require,module,exports){
+},{"ngraph.physics.primitives":8,"ngraph.physics.simulator":13,"ngraph.random":9}],8:[function(require,module,exports){
 module.exports = {
   Body: Body,
   Vector2d: Vector2d
@@ -10275,7 +10361,7 @@ function Vector2d(x, y) {
   this.y = typeof y === 'number' ? y : 0;
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = {
   random: random,
   randomIterator: randomIterator
@@ -10362,7 +10448,7 @@ function randomIterator(array, customRandom) {
     };
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports = {
   ladder: ladder,
   complete: complete,
@@ -10569,7 +10655,7 @@ function noLinks(n) {
   return g;
 }
 
-},{"ngraph.graph":10}],10:[function(require,module,exports){
+},{"ngraph.graph":11}],11:[function(require,module,exports){
 /**
  * @fileOverview Contains definition of the core graph object.
  */
@@ -10990,7 +11076,7 @@ function Link(fromId, toId, data, id) {
     this.id = id;
 }
 
-},{"ngraph.events":11}],11:[function(require,module,exports){
+},{"ngraph.events":12}],12:[function(require,module,exports){
 module.exports = function(subject) {
   validateSubject(subject);
 
@@ -11077,7 +11163,7 @@ function validateSubject(subject) {
   }
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Manages a simulation of physical forces acting on bodies and springs.
  */
@@ -11278,7 +11364,7 @@ function physicsSimulator(settings) {
   }
 };
 
-},{"./lib/dragForce":13,"./lib/eulerIntegrator":14,"./lib/exposeProperties":15,"./lib/spring":16,"./lib/springForce":17,"ngraph.merge":18,"ngraph.quadtreebh":19}],13:[function(require,module,exports){
+},{"./lib/dragForce":14,"./lib/eulerIntegrator":15,"./lib/exposeProperties":16,"./lib/spring":17,"./lib/springForce":18,"ngraph.merge":19,"ngraph.quadtreebh":20}],14:[function(require,module,exports){
 /**
  * Represents drag force, which reduces force value on each step by given
  * coefficient.
@@ -11307,7 +11393,7 @@ module.exports = function (options) {
   return api;
 };
 
-},{"./exposeProperties":15,"ngraph.merge":18}],14:[function(require,module,exports){
+},{"./exposeProperties":16,"ngraph.merge":19}],15:[function(require,module,exports){
 /**
  * Performs forces integration, using given timestep. Uses Euler method to solve
  * differential equation (http://en.wikipedia.org/wiki/Euler_method ).
@@ -11351,7 +11437,7 @@ function integrate(bodies, timeStep) {
   return (tx * tx + ty * ty)/bodies.length;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = exposeProperties;
 
 /**
@@ -11397,7 +11483,7 @@ function augment(source, target, key) {
   }
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = Spring;
 
 /**
@@ -11413,7 +11499,7 @@ function Spring(fromBody, toBody, length, coeff, weight) {
     this.weight = typeof weight === 'number' ? weight : 1;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Represents spring force, which updates forces acting on two bodies, conntected
  * by a spring.
@@ -11465,7 +11551,7 @@ module.exports = function (options) {
   return api;
 }
 
-},{"./exposeProperties":15,"ngraph.merge":18,"ngraph.random":23}],18:[function(require,module,exports){
+},{"./exposeProperties":16,"ngraph.merge":19,"ngraph.random":24}],19:[function(require,module,exports){
 module.exports = merge;
 
 /**
@@ -11498,7 +11584,7 @@ function merge(target, options) {
   return target;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * This is Barnes Hut simulation algorithm. Implementation
  * is adopted to non-recursive solution, since certain browsers
@@ -11772,7 +11858,7 @@ module.exports = function (options) {
 };
 
 
-},{"./insertStack":20,"./isSamePosition":21,"./node":22,"ngraph.random":23}],20:[function(require,module,exports){
+},{"./insertStack":21,"./isSamePosition":22,"./node":23,"ngraph.random":24}],21:[function(require,module,exports){
 module.exports = InsertStack;
 
 /**
@@ -11817,7 +11903,7 @@ function InsertStackElement(node, body) {
     this.body = body; // physical body which needs to be inserted to node
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = function isSamePosition(point1, point2) {
     var dx = Math.abs(point1.x - point2.x);
     var dy = Math.abs(point1.y - point2.y);
@@ -11825,7 +11911,7 @@ module.exports = function isSamePosition(point1, point2) {
     return (dx < 1e-8 && dy < 1e-8);
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Internal data structure to represent 2D QuadTree node
  */
@@ -11857,9 +11943,9 @@ module.exports = function Node() {
   this.isInternal = false;
 };
 
-},{}],23:[function(require,module,exports){
-module.exports=require(8)
 },{}],24:[function(require,module,exports){
+module.exports=require(9)
+},{}],25:[function(require,module,exports){
 module.exports = function (graph, layout) {
   var width = window.innerWidth,
       height = window.innerHeight - 50;
@@ -11889,7 +11975,7 @@ module.exports = function (graph, layout) {
   };
 };
 
-wg = require('./wordgalaxy');
+bf = require('./budgetFadeaway');
 function drawGraph(graphics) {
   // No magic at all: Iterate over positions array and render nodes/links
   
@@ -11898,11 +11984,11 @@ function drawGraph(graphics) {
     graphics.lineStyle(0);
     graphics.clear();
       
-    for(var word in wg.wordGalaxy) {
+    for(var word in bf.budgetFadeaway) {
         //var dotSize = 50*wg.wordGalaxy[word].dotSize + .1;
-        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
-          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
           graphics.beginFill(0xFFFFFF);
           graphics.drawRect(positions.x - dotSizes.x/2, positions.y - dotSizes.y/2, dotSizes.x, dotSizes.y);
           graphics.endFill();
@@ -11910,92 +11996,6 @@ function drawGraph(graphics) {
     }
 }
 
-},{"./wordgalaxy":25}],25:[function(require,module,exports){
-module.exports = function () {
-  var geohash = require('ngeohash');
-  var $ = require('jquery');
-  geoHashDictionary = {};
-  $.ajax({
-       url:    window.location.href + '/../processing/wordGalaxy.json',
-       success: function(result) {
-                    wordGalaxy = result;
-                    for(var word in wordGalaxy) {
-                      hash = geohash.encode(wordGalaxy[word].x, wordGalaxy[word].y, precision=4);
-                      if(hash in geoHashDictionary) {
-                        geoHashDictionary[hash].push(word);
-                      } else {
-                        geoHashDictionary[hash] = [word];  
-                      }
-                    }
-                },
-       async:   false
-  });
-  
-  function graphicsToWordGalaxyCoordinates(x,y) {
-    var scale = window.innerHeight;
-    var width = window.innerWidth;
-    x_out = (x - width/2)/scale + 0.5;
-    y_out = y/scale;
-    return {x: x_out, y: y_out};  
-  }
-  
-  function wordGalaxyToGraphicsCoordinates(x,y) {
-    var scale = window.innerHeight;
-    var width = window.innerWidth;
-    x_out = scale*(x-0.5) + width/2;
-    y_out = scale*y;
-    return {x: x_out, y: y_out};
-  }
-  
-  function getScaledDotSizes(dotSize) {
-    var scale = window.innerHeight;
-    //var width = window.innerWidth;
-    x_out = scale*dotSize;
-    y_out = scale*dotSize;
-    return {x: x_out, y: y_out};
-  }
-  
-  function getWord(x, y) {
-    wordGalaxyPositions = graphicsToWordGalaxyCoordinates(x, y);
-    var hash = geohash.encode(wordGalaxyPositions.x, wordGalaxyPositions.y, precision=4);
-    if(hash in geoHashDictionary) {
-      var closestWord = "";
-      var closestDistance = 1000;
-      geoHashDictionary[hash].forEach(function(word, i, arr) {
-        x2 = Math.pow((wordGalaxyPositions.x - wordGalaxy[word].x), 2);
-        y2 = Math.pow((wordGalaxyPositions.y - wordGalaxy[word].y), 2);
-        d = x2 + y2;
-        
-        if(d < closestDistance) {
-          closestDistance = d;
-          closestWord = word;
-        }
-      })
-      return closestWord;
-    }
-    return "";
-  }
-  
-  var taggedWords = {};
-      taggedWords["test1"] = {"x":0.5, "y":0.5};
-      taggedWords["test2"] = {"x":0.3, "y":0.3};
-      
-  
-  function addTaggedWord(word) {
-    taggedWords[word] = {"x" : Math.random(), "y": Math.random()};
-  }
-  
-  return {
-    wordGalaxy: wordGalaxy,
-    geoHashDictionary: geoHashDictionary,
-    graphicsToWordGalaxyCoordinates: graphicsToWordGalaxyCoordinates,
-    wordGalaxyToGraphicsCoordinates: wordGalaxyToGraphicsCoordinates,
-    getWord: getWord,
-    getTaggedWords: function() {return taggedWords;},
-    addTaggedWord: addTaggedWord,
-    getScaledDotSizes: getScaledDotSizes
-  };
-}();
-},{"jquery":4,"ngeohash":5}]},{},[2])
-(2)
+},{"./budgetFadeaway":1}]},{},[3])
+(3)
 });

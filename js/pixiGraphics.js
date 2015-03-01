@@ -27,7 +27,7 @@ module.exports = function (graph, layout) {
   };
 };
 
-wg = require('./wordgalaxy');
+bf = require('./budgetFadeaway');
 function drawGraph(graphics) {
   // No magic at all: Iterate over positions array and render nodes/links
   
@@ -36,11 +36,11 @@ function drawGraph(graphics) {
     graphics.lineStyle(0);
     graphics.clear();
       
-    for(var word in wg.wordGalaxy) {
+    for(var word in bf.budgetFadeaway) {
         //var dotSize = 50*wg.wordGalaxy[word].dotSize + .1;
-        var dotSizes = wg.getScaledDotSizes(wg.wordGalaxy[word].dotSize);
+        var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
-          positions = wg.wordGalaxyToGraphicsCoordinates(wg.wordGalaxy[word].x, wg.wordGalaxy[word].y);
+          positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
           graphics.beginFill(0xFFFFFF);
           graphics.drawRect(positions.x - dotSizes.x/2, positions.y - dotSizes.y/2, dotSizes.x, dotSizes.y);
           graphics.endFill();

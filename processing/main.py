@@ -13,9 +13,6 @@ import os
 
 start_time = time()
 n_samples = 20000
-#wordlist = ["word-%d" % i for i in range(n_samples)]
-#print "creating random samples..."
-#X_raw = rand(n_samples,250)
 
 f = open("../data/budauth.csv", 'r')
 csv_file = csv.reader(f)
@@ -26,10 +23,9 @@ word_list = []
 dot_sizes = []
 for line in csv_file:
   if not isHeader:
-    #entries = line.strip().split(',')
     entries = line
     #print "length: %d" % len(entries)
-    word_entry = "%s ($%s,000)" % (entries[5], entries[52])
+    word_entry = "%s: %s ($%s,000)" % (entries[8], entries[5], entries[52])
     word_list.append(word_entry)
     stringVector = entries[12:]
     #print stringVector
@@ -47,13 +43,11 @@ dot_sizes = Normalizer().fit_transform(np.array([dot_sizes]))[0,:]*0.45
 wordmap = {}
 print "formatting data..."
 for i in range(0, len(word_list)):
-  #x = X_scaled[i][0]
-  #y = X_scaled[i][1]
   key = word_list[i]
   dot_size = dot_sizes[i]
   wordmap[key] = {"x": 0, "y": 0, "dotSize" : dot_size}
   
-f = open('wordGalaxy_raw.json', 'w')
+f = open('budgetFadeaway_raw.json', 'w')
 json.dump(wordmap, f)
 f.close()
 
