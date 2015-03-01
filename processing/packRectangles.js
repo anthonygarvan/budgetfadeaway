@@ -2,10 +2,10 @@
 p = require('./packer.js');
 
 var fs = require('fs');
-var wg = JSON.parse(fs.readFileSync('wordGalaxy_raw.json', 'utf8'));
+var wg = JSON.parse(fs.readFileSync('budgetFadeaway_raw.json', 'utf8'));
 
 var packer = new Packer(1,1);   // or:  new GrowingPacker();
-  
+//var packer = new GrowingPacker();  
 scale = 1;
 words =[];
 blocks = [];

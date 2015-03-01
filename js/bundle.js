@@ -150,9 +150,9 @@ module.exports = function (graphics) {
     var highlighter = new PIXI.Graphics();
     stage.addChild(highlighter);
     
-    var text = new PIXI.Text("", {font:"20px Helvetica", fill:"yellow", stroke: "black", strokeThickness: 2});
+    var text = new PIXI.Text("", {font:"20px Helvetica", fill:"white", stroke: "black", strokeThickness: 2});
     text.position.x = 50;
-    text.position.y = 50;
+    text.position.y = window.innerHeight - 100;
     stage.addChild(text);
 
     var isDragging = false,
@@ -181,7 +181,7 @@ module.exports = function (graphics) {
         var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
           positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
-          highlighter.beginFill(0xFFFF00);
+          highlighter.beginFill(0xFFFFFF);
           highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
           highlighter.endFill();
         }
@@ -11953,7 +11953,7 @@ module.exports = function (graph, layout) {
   var stage = new PIXI.Stage(0x000000, true);
   var renderer = PIXI.autoDetectRenderer(width, height, null, false, true);
   renderer.view.style.display = "block";
-  document.getElementById("galaxy").appendChild(renderer.view);
+  document.getElementById("fadeaway").appendChild(renderer.view);
 
   var graphics = new PIXI.Graphics();
   graphics.position.x = 0;
@@ -11989,7 +11989,7 @@ function drawGraph(graphics) {
         var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
         if(dotSizes.x > 0) {
           positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
-          graphics.beginFill(0xFFFFFF);
+          graphics.beginFill(0xB2FF99);
           graphics.drawRect(positions.x - dotSizes.x/2, positions.y - dotSizes.y/2, dotSizes.x, dotSizes.y);
           graphics.endFill();
         }
