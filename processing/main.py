@@ -45,7 +45,8 @@ print "formatting data..."
 for i in range(0, len(word_list)):
   key = word_list[i]
   dot_size = dot_sizes[i]
-  wordmap[key] = {"x": 0, "y": 0, "dotSize" : dot_size}
+  if dot_size > 0:
+    wordmap[key] = {"x": 0, "y": 0, "dotSize" : dot_size}
   
 f = open('budgetFadeaway_raw.json', 'w')
 json.dump(wordmap, f)
