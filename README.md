@@ -1,4 +1,5 @@
-# Budget Fadeaway: Every line item in the White House's 2016 Budget Proposal, Visualized
+# Budget Fadeaway 
+## Every line item in the White House's 2016 budget proposal, visualized.
 
 Every line item in the white house's 2016 budget represented by a square whose area is proportional to its size.
 
