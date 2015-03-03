@@ -53,7 +53,12 @@ module.exports = function (graphics) {
     event.preventDefault();
     var searchTerm = $("#search-term").val();
     $("#search-term").val("");
-    matchedKeys = findKeysForSearchTerm(searchTerm);
+    
+    if(searchTerm) {
+      matchedKeys = findKeysForSearchTerm(searchTerm);
+    } else {
+      matchedKeys = [];
+    }
     
     lastSearchPoints.forEach(function(elem, i, arr) {
       graphGraphics.removeChild(elem);
