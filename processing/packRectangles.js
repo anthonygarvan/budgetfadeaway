@@ -10,7 +10,7 @@ scale = 1;
 words =[];
 blocks = [];
 for(var word in wg) {
-  blocks.push({w: wg[word].dotSize+0.018, h: wg[word].dotSize + 0.018, "word": word, 'dotSize': wg[word].dotSize}); 
+  blocks.push({w: wg[word].dotSize+0.018, h: wg[word].dotSize + 0.018, "word": word, 'dotSize': wg[word].dotSize, 'value': wg[word].value}); 
   words.push(word);
 }
 
@@ -29,7 +29,7 @@ failedToFit = 0
 for(var i = 0 ; i < blocks.length ; i++) {
   if(blocks[i].fit) {
     var dotSize = blocks[i].dotSize
-    wg_new[blocks[i].word] = {x: blocks[i].fit.x + 0.5*dotSize, y: blocks[i].fit.y+0.5*dotSize, dotSize: dotSize};
+    wg_new[blocks[i].word] = {x: blocks[i].fit.x + 0.5*dotSize, y: blocks[i].fit.y+0.5*dotSize, dotSize: dotSize, value: blocks[i].value};
   } else {
     failedToFit++;
   }

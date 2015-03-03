@@ -152,9 +152,9 @@ module.exports = function (graphics) {
     });
     
     lastSearchPoints = [];
-    
+    total = 0
     for(var i = 0; i < matchedKeys.length; i++) {
-      var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill:"yellow"});
+      total += bf.budgetFadeaway[matchedKeys[i]].value;
       wordPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[matchedKeys[i]].x, bf.budgetFadeaway[matchedKeys[i]].y);
       
       var taggedPoint = new PIXI.Graphics();
@@ -173,8 +173,14 @@ module.exports = function (graphics) {
       highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
       highlighter.endFill();
       lastSearchPoints.push(highlighter);
-      
     }
+    var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill: '#ffc0cb'});
+    graphGraphics.addChild(taggedText);
+    taggedText.setText("Total: $" + total.toLocaleString());
+    taggedText.position.x = window.innerWidth - 400;
+    taggedText.position.y = 25;
+    lastSearchPoints.push(taggedText);
+    
   });
 
   function addDragNDrop() {

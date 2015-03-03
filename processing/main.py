@@ -21,6 +21,7 @@ isHeader = True
 X_list = []
 word_list = []
 dot_sizes = []
+values = []
 for line in csv_file:
   if not isHeader:
     entries = line
@@ -31,8 +32,9 @@ for line in csv_file:
     #print stringVector
     v = [float(entry.replace(',','')) for entry in stringVector]
     X_list.append(v)
-    dot_size = float(entries[52].replace(',',''))
-    clipped_dot_size = dot_size if dot_size > 0 else 0
+    value = float(entries[52].replace(',',''))
+    values.append(value*1000)
+    clipped_dot_size = value if value > 0 else 0
     dot_sizes.append(math.sqrt(clipped_dot_size))
   else:
     print line[52]
@@ -45,8 +47,9 @@ print "formatting data..."
 for i in range(0, len(word_list)):
   key = word_list[i]
   dot_size = dot_sizes[i]
+  value = values[i]
   if dot_size > 0:
-    wordmap[key] = {"x": 0, "y": 0, "dotSize" : dot_size}
+    wordmap[key] = {"x": 0, "y": 0, "dotSize" : dot_size, "value": value}
   
 f = open('budgetFadeaway_raw.json', 'w')
 json.dump(wordmap, f)
