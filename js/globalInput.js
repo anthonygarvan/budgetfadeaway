@@ -39,21 +39,50 @@ module.exports = function (graphics) {
     graphGraphics.updateTransform();
   }
   
+  function findKeysForSearchTerm(searchTerm) {
+    matchedKeys = []
+    for(var key in bf.budgetFadeaway) {
+      if(key.toLowerCase().search(searchTerm.toLowerCase()) >= 0) {
+        matchedKeys.push(key);
+      }
+    }
+    return matchedKeys;
+  }
+  lastSearchPoints = [];
   $("#search-form").submit(function(event) {
     event.preventDefault();
     var searchTerm = $("#search-term").val();
     $("#search-term").val("");
-    var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill:"yellow"});
-    wordPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[searchTerm].x, bf.budgetFadeaway[searchTerm].y);
-    taggedText.position.x = wordPos.x + 5;
-    taggedText.position.y = wordPos.y - 30;
-    taggedText.setText(searchTerm);
-    graphGraphics.addChild(taggedText);
+    matchedKeys = findKeysForSearchTerm(searchTerm);
     
-    var taggedPoint = new PIXI.Graphics();
-    taggedPoint.beginFill(0xFFFF00);
-    taggedPoint.drawCircle(wordPos.x, wordPos.y, 6);    
-    graphGraphics.addChild(taggedPoint);
+    lastSearchPoints.forEach(function(elem, i, arr) {
+      graphGraphics.removeChild(elem);
+    });
+    
+    lastSearchPoints = [];
+    
+    for(var i = 0; i < matchedKeys.length; i++) {
+      var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill:"yellow"});
+      wordPos = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[matchedKeys[i]].x, bf.budgetFadeaway[matchedKeys[i]].y);
+      
+      var taggedPoint = new PIXI.Graphics();
+      taggedPoint.beginFill(0xffc0cb);
+      taggedPoint.drawCircle(wordPos.x, wordPos.y, 4);    
+      graphGraphics.addChild(taggedPoint);
+      lastSearchPoints.push(taggedPoint);
+      
+      var highlighter = new PIXI.Graphics();
+      graphGraphics.addChild(highlighter);
+    
+      highlighter.clear();
+      var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[matchedKeys[i]].dotSize);
+      positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[matchedKeys[i]].x, bf.budgetFadeaway[matchedKeys[i]].y);
+      highlighter.beginFill(0xffc0cb);
+      highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
+      highlighter.endFill();
+      lastSearchPoints.push(highlighter);
+      
+    }
   });
 
   function addDragNDrop() {
@@ -92,12 +121,11 @@ module.exports = function (graphics) {
         highlighter.position.y = graphGraphics.position.y;
         highlighter.clear();
         var dotSizes = bf.getScaledDotSizes(bf.budgetFadeaway[word].dotSize);
-        if(dotSizes.x > 0) {
-          positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
-          highlighter.beginFill(0xFFFFFF);
-          highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
-          highlighter.endFill();
-        }
+        positions = bf.budgetFadeawayToGraphicsCoordinates(bf.budgetFadeaway[word].x, bf.budgetFadeaway[word].y);
+        highlighter.beginFill(0xFFFFFF);
+        highlighter.drawRect(positions.x-dotSizes.x/2, positions.y-dotSizes.y/2, dotSizes.x, dotSizes.y);
+        highlighter.endFill();
+      
       } else {
         highlighter.visible = false;
       }
