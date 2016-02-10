@@ -9,5 +9,5 @@ To search for a term, type it in the search box on the upper right hand side and
 For the presentation, I rely on PIXI.js, a game engine which uses WebGL when available and fails gracefully into canvas rendering.
 This project is born out of my [wordgalaxy](https://github.com/anthonygarvan/wordgalaxy) project.
 
-If you have questions, feature requests, or feedback of any kind, please don't hesitate to message me.
+If you have questions, feature requests, or feedback of any kind, please don't hesitate to message me on github or tweet me @anthonygarvan.
 
