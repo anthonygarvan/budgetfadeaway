@@ -1,13 +1,11 @@
 import json
 import random
-#from sklearn.manifold import TSNE
-from tsne import bh_sne
 from numpy.random import rand
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
 from time import time
 import numpy as np
 import csv
-from sklearn.metrics.pairwise import pairwise_distances
+#from sklearn.metrics.pairwise import pairwise_distances
 import math
 import os
 
