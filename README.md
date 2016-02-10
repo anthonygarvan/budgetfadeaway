@@ -2,7 +2,7 @@
 ## Every line item in the White House's 2017 budget proposal, visualized and searchable.
 See it live [here](http://anthonygarvan.github.io/budgetfadeaway/).
 
-Every line item in the white house's 2017 budget represented by a square whose area is proportional to its size.
+This is a simple visualization where every line item in the white house's 2017 budget is represented by a square whose area is proportional to its size. The squares are arranged to form a sort of "fadeaway" pattern which I found suited this data set. 
 
 To search for a term, type it in the search box on the upper right hand side and hit `ENTER` or click the "search" button. All budget line items which contain that term will be shown, as well as the total. Very small line items get marked with a bigger circle when they are searched for in order to be more visible.
 
