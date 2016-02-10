@@ -90,8 +90,8 @@ module.exports = function (graphics) {
     var taggedText = new PIXI.Text("", {font:"bold 25px Helvetica", fill: '#ffc0cb'});
     graphGraphics.addChild(taggedText);
     taggedText.setText("Total: $" + total.toLocaleString());
-    taggedText.position.x = window.innerWidth - 400;
-    taggedText.position.y = 25;
+    taggedText.position.x = 50;
+    taggedText.position.y = window.innerHeight - 150;
     lastSearchPoints.push(taggedText);
     
   });
